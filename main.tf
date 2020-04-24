@@ -16,11 +16,10 @@ locals {
 }
 
 module "logs" {
-  source                   = "git::https://github.com/cloudposse/terraform-aws-s3-log-storage.git?ref=tags/0.5.0"
+  source                   = "git::https://github.com/MagnetarIT/terraform-aws-s3-logs.git?ref=tags/0.1.0"
   name                     = var.name
-  stage                    = var.stage
+  environment              = var.environment
   namespace                = var.namespace
-  delimiter                = var.delimiter
   attributes               = compact(concat(var.attributes, ["logs"]))
   standard_transition_days = var.logs_standard_transition_days
   glacier_transition_days  = var.logs_glacier_transition_days
@@ -28,14 +27,14 @@ module "logs" {
 }
 
 module "default_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
-  namespace  = var.namespace
-  stage      = var.stage
-  name       = var.name
-  delimiter  = var.delimiter
-  attributes = compact(concat(var.attributes, ["origin"]))
-  tags       = var.tags
+  source      = "git::https://github.com/MagnetarIT/terraform-naming-standard.git?ref=tags/0.1.0"
+  namespace   = var.namespace
+  environment = var.environment
+  name        = var.name
+  attributes  = compact(concat(var.attributes, ["origin"]))
+  tags        = var.tags
 }
+
 
 resource "aws_s3_bucket" "default" {
   bucket        = var.hostname
@@ -231,11 +230,19 @@ data "aws_iam_policy_document" "deployment" {
   }
 }
 
-module "dns" {
-  source           = "git::https://github.com/cloudposse/terraform-aws-route53-alias.git?ref=tags/0.3.0"
-  aliases          = compact([signum(length(var.parent_zone_id)) == 1 || signum(length(var.parent_zone_name)) == 1 ? var.hostname : ""])
-  parent_zone_id   = var.parent_zone_id
-  parent_zone_name = var.parent_zone_name
-  target_dns_name  = aws_s3_bucket.default.website_domain
-  target_zone_id   = aws_s3_bucket.default.hosted_zone_id
+
+data "aws_route53_zone" "selected" {
+  name = var.r53_zone_name
+}
+
+resource "aws_route53_record" "default" {
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = var.r53_record_name
+  type    = "CNAME"
+
+  alias {
+    name                   = aws_s3_bucket.default.website_endpoint
+    zone_id                = aws_s3_bucket.default.hosted_zone_id
+    evaluate_target_health = false
+  }
 }

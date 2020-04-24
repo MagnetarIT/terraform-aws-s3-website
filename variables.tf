@@ -9,7 +9,7 @@ variable "namespace" {
   default     = ""
 }
 
-variable "stage" {
+variable "environment" {
   type        = string
   description = "Stage (e.g. `prod`, `dev`, `staging`)"
   default     = ""
@@ -27,27 +27,9 @@ variable "tags" {
   description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`)"
 }
 
-variable "delimiter" {
-  type        = string
-  default     = "-"
-  description = "Delimiter to be used between `name`, `namespace`, `stage`, etc."
-}
-
 variable "hostname" {
   type        = string
   description = "Name of website bucket in `fqdn` format (e.g. `test.example.com`). IMPORTANT! Do not add trailing dot (`.`)"
-}
-
-variable "parent_zone_id" {
-  type        = string
-  description = "ID of the hosted zone to contain the record"
-  default     = ""
-}
-
-variable "parent_zone_name" {
-  type        = string
-  description = "Name of the hosted zone to contain the record"
-  default     = ""
 }
 
 variable "index_document" {
@@ -180,4 +162,14 @@ variable "deployment_actions" {
   type        = list(string)
   default     = ["s3:PutObject", "s3:PutObjectAcl", "s3:GetObject", "s3:DeleteObject", "s3:ListBucket", "s3:ListBucketMultipartUploads", "s3:GetBucketLocation", "s3:AbortMultipartUpload"]
   description = "List of actions to permit deployment ARNs to perform"
+}
+
+variable "r53_zone_name" {
+  type        = string
+  description = "The DNS zone name for R53"
+}
+
+variable "r53_record_name" {
+  type        = string
+  description = "The fqdn DNS record for R53"
 }

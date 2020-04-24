@@ -32,3 +32,8 @@ output "s3_bucket_hosted_zone_id" {
   value       = aws_s3_bucket.default.hosted_zone_id
   description = "The Route 53 Hosted Zone ID for this bucket's region"
 }
+
+output "s3_r53_fqdn" {
+  value = aws_route53_record.default.fqdn
+  description = "The Route 53 record for the S3 bucket"
+}

@@ -1,0 +1,32 @@
+trigger:
+  - master
+  
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: core
+
+steps:
+- task: TerraformInstaller@0
+  inputs:
+    terraformVersion: '0.12.24'
+
+- bash: |
+    # Set aws env vars
+    cd examples
+    export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+    export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
+    terraform init
+    terraform apply -auto-approve
+  displayName: Terraform apply [testing example]
+
+- bash: |
+    # Set aws env vars
+    cd examples
+    export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+    export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
+    terraform init
+    terraform destroy -auto-approve
+  displayName: Terraform destroy [testing example]
+  condition: always()

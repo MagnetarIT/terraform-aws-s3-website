@@ -1,5 +1,5 @@
 output "hostname" {
-  value       = var.hostname
+  value       = module.s3_website.hostname
   description = "Bucket hostname"
 }
 
@@ -31,4 +31,9 @@ output "s3_bucket_website_domain" {
 output "s3_bucket_hosted_zone_id" {
   value       = module.s3_website.s3_bucket_hosted_zone_id
   description = "The Route 53 Hosted Zone ID for this bucket's region"
+}
+
+output "s3_r53_fqdn" {
+  value       = module.s3_website.s3_r53_fqdn
+  description = "The Route 53 record for the S3 bucket"
 }
